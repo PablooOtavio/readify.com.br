@@ -4,7 +4,9 @@
   "description": "A project for creating an OCR capable of identifying different types of handwriting.",
   "main": "index.js",
   "scripts": {
-    "dev": "yarn run next dev"
+    "dev": "yarn run next dev",
+    "lint:check": "prettier --check .",
+    "lint:fix": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,8 @@
     "next": "^15.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
   }
 }
