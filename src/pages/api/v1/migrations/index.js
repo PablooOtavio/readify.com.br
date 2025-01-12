@@ -3,36 +3,36 @@ import migrationRunner from "node-pg-migrate";
 import { join } from "node:path";
 
 export default async function migrations(request, response) {
-  const dbClient = await database.getNewClient();
+  const allowedMethods = ["GET", "POST"];
+  const isValidMethod = allowedMethods.includes(request.method);
+  const dryRun = request.method === "GET";
+  let dbClient = null;
 
-  const defaultMigrationOptions = {
-    dbClient: dbClient,
-    dryRun: true,
-    dir: join("src", "infra", "migrations"),
-    direction: "up",
-    verbose: true,
-    migrationsTable: "pgmigrations",
-  };
-
-  if (request.method === "GET") {
-    const pendingMigrations = await migrationRunner(defaultMigrationOptions);
-    await dbClient.end();
-    return response.status(200).send(pendingMigrations);
+  if (!isValidMethod) {
+    return response.status(405).end();
   }
-  if (request.method === "POST") {
-    const completedMigrations = await migrationRunner({
-      ...defaultMigrationOptions,
-      dryRun: false,
+
+  try {
+    dbClient = await database.getNewClient();
+
+    const migrationsResult = await migrationRunner({
+      dbClient: dbClient,
+      dryRun: dryRun,
+      dir: join("src", "infra", "migrations"),
+      direction: "up",
+      verbose: true,
+      migrationsTable: "pgmigrations",
     });
 
-    await dbClient.end();
-
-    if (completedMigrations.length > 0) {
-      return response.status(201).send(completedMigrations);
+    if (migrationsResult.length > 0 && !dryRun) {
+      return response.status(201).send(migrationsResult);
     }
 
-    return response.status(200).send(completedMigrations);
+    return response.status(200).send(migrationsResult);
+  } catch (error) {
+    console.error(error);
+    return response.status(405).end();
+  } finally {
+    await dbClient.end();
   }
-
-  return response.status(405).end();
 }
