@@ -1,6 +1,6 @@
 # Readify
 
-**Readify** é uma poderosa plataforma online que oferece conversão de arquivos e uma API robusta para desenvolvedores e empresas. Nossa missão é simplificar a conversão de documentos, permitindo que usuários de todos os níveis transformem rapidamente arquivos PDF, DOCX, XLSX, e outros formatos, de forma eficiente e segura.
+O **Readify** é uma poderosa plataforma online que oferece conversão de arquivos e uma API robusta para desenvolvedores e empresas. Nossa missão é simplificar a conversão de documentos, permitindo que usuários de todos os níveis transformem rapidamente arquivos PDF, DOCX, XLSX, e outros formatos, de forma eficiente e segura.
 
 ## Recursos Principais
 
@@ -19,16 +19,19 @@
 ## Planos Disponíveis
 
 ### Plano Gratuito
+
 - 100 créditos de conversão diários.
 - Anúncios moderados.
 - Conversões rápidas e seguras.
 
 ### Plano Premium
+
 - Conversões ilimitadas.
 - Sem anúncios.
 - Suporte prioritário e conversões mais rápidas.
 
 ### API para Desenvolvedores
+
 - Acesso robusto à API para integrações personalizadas.
 - Planos flexíveis para desenvolvedores individuais e empresas.
 
