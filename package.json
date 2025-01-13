@@ -4,7 +4,7 @@
   "description": "A project for creating an OCR capable of identifying different types of handwriting.",
   "main": "index.js",
   "scripts": {
-    "dev": "yarn services:up && yarn run next dev",
+    "dev": "yarn services:up && yarn wait:docker-up && yarn migrations:up && yarn run next dev",
     "services:up": "docker compose -f src/infra/compose.yaml up -d",
     "services:stop": "docker compose -f src/infra/compose.yaml stop",
     "services:down": "docker compose -f src/infra/compose.yaml down",
@@ -12,8 +12,9 @@
     "lint:fix": "prettier --write .",
     "test": "jest --runInBand",
     "test:watch": "jest --watchAll --runInBand",
-    "migration:create": "node-pg-migrate -m src/infra/migrations create",
-    "migration:up": "node-pg-migrate -m src/infra/migrations --envPath .env.development up"
+    "migrations:create": "node-pg-migrate -m src/infra/migrations create",
+    "migrations:up": "node-pg-migrate -m src/infra/migrations --envPath .env.development up",
+    "wait:docker-up": "node src/infra/scripts/wait-docker-up.js"
   },
   "repository": {
     "type": "git",
@@ -26,15 +27,15 @@
   },
   "homepage": "https://github.com/PablooOtavio/OCRhandwriting#readme",
   "dependencies": {
-    "dotenv": "^16.4.4",
-    "dotenv-expand": "11.0.6",
     "next": "^15.1.0",
-    "node-pg-migrate": "^6.2.2",
-    "pg": "^8.11.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "node-pg-migrate": "^6.2.2",
+    "dotenv": "^16.4.4",
+    "pg": "^8.11.3",
+    "dotenv-expand": "11.0.6",
     "jest": "^29.6.2",
     "prettier": "^3.4.2",
     "yarn": "^1.22.22"
