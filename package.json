@@ -15,7 +15,8 @@
     "test:watch": "jest --watchAll --runInBand",
     "migrations:create": "node-pg-migrate -m src/infra/migrations create",
     "migrations:up": "node-pg-migrate -m src/infra/migrations --envPath .env.development up",
-    "wait:docker-up": "node src/infra/scripts/wait-docker-up.js"
+    "wait:docker-up": "node src/infra/scripts/wait-docker-up.js",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -46,6 +47,7 @@
     "eslint-config-next": "15.1.4",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-jest": "^28.11.0",
+    "husky": "9.1.4",
     "prettier": "^3.4.2",
     "yarn": "^1.22.22"
   }
