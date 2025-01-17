@@ -11,13 +11,19 @@
     "lint:prettier-check": "prettier --check .",
     "lint:prettier-fix": "prettier --write .",
     "lint:eslint-check": "next lint --dir .",
+    "lint:secretlint-check": "secretlint \"**/*\"",
     "test": "yarn services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand --verbose\"",
     "test:watch": "jest --watchAll --runInBand",
     "migrations:create": "node-pg-migrate -m src/infra/migrations create",
     "migrations:up": "node-pg-migrate -m src/infra/migrations --envPath .env.development up",
     "wait:docker-up": "node src/infra/scripts/wait-docker-up.js",
-    "prepare": "husky",
+    "prepare": "husky && husky install",
     "commit": "cz"
+  },
+  "lint-staged": {
+    "*": [
+      "secretlint"
+    ]
   },
   "repository": {
     "type": "git",
@@ -43,6 +49,7 @@
   "devDependencies": {
     "@commitlint/cli": "19.3.0",
     "@commitlint/config-conventional": "19.2.2",
+    "@secretlint/secretlint-rule-preset-recommend": "^9.0.0",
     "commitizen": "4.3.1",
     "concurrently": "^9.1.2",
     "cz-conventional-changelog": "3.3.0",
@@ -51,7 +58,9 @@
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-jest": "^28.11.0",
     "husky": "9.1.4",
+    "lint-staged": "^15.4.1",
     "prettier": "^3.4.2",
+    "secretlint": "^9.0.0",
     "yarn": "^1.22.22"
   },
   "config": {
