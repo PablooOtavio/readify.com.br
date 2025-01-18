@@ -1,66 +1,101 @@
-const { exec, spawn } = require("node:child_process");
+const { spawn } = require("node:child_process");
+let cleanupCalled = false;
+let devServer = null;
 
-const runCommand = (command, description) => {
-  // eslint-disable-next-line no-undef
+const clearLastLine = () => {
+  process.stdout.write("\x1b[1A\x1b[2K");
+};
+
+const shouldShowLogs = (command) => {
+  return (
+    command.includes("migrations:up") ||
+    command.includes("services:wait-db") ||
+    command.includes("next") ||
+    command.includes("services:down")
+  );
+};
+
+const runCommand = (command, args = [], description) => {
+  //eslint-disable-next-line
   return new Promise((resolve, reject) => {
-    console.log(`\n⏳ ${description}...`);
-    const child = spawn(command, { stdio: "inherit" });
+    if (command === "services:down" && cleanupCalled) {
+      return resolve();
+    }
 
-    child.stdout?.on("data", (data) => process.stdout.write(data));
-    child.stderr?.on("data", (data) => process.stderr.write(data));
+    console.log(`\n⏳ ${description || command}`);
+
+    const child = spawn(command, args, {
+      stdio: shouldShowLogs(args[0]) ? "inherit" : ["ignore", "pipe", "pipe"],
+      shell: true,
+    });
+
+    child.on("error", (error) => {
+      console.error(`\n❌ ${description || command} failed:`, error);
+      reject(error);
+    });
 
     child.on("exit", (code) => {
       if (code === 0) {
+        clearLastLine();
+        console.log(`\n✅ ${description || command} completed!`);
         resolve();
       } else {
-        console.error(`\n❌ Failed: ${description} with exit code ${code}`);
-        reject(new Error(`${description} failed with exit code ${code}`));
+        reject(new Error(`${description || command} failed with code ${code}`));
       }
     });
   });
 };
 
-(async () => {
-  let cleanupCalled = false; // Flag to ensure cleanup is only called once
+const cleanup = async (exitCode = 0) => {
+  if (cleanupCalled) return;
+  cleanupCalled = true;
 
-  const cleanup = () => {
-    if (cleanupCalled) return; // Skip if already called
-    cleanupCalled = true;
-    console.log("🧹 Cleaning up resources...");
-    exec("npm run services:stop", (err) => {
-      if (err) {
-        console.error("\n❌ Cleanup script failed:", err);
-      } else {
-        console.log("\n✅ Cleanup completed successfully!");
-      }
-      process.exit(0); // Exit with success status code (0)
-    });
-  };
+  console.log("\n\n🛑 Shutting down services...");
 
   try {
-    await runCommand("npm run services:up");
-    await runCommand("npm run services:wait-db");
+    if (devServer && !devServer.killed) {
+      devServer.kill("SIGTERM");
+    }
 
-    // Step 3: Run migrations
-    await runCommand("npm run migrations:up");
+    //eslint-disable-next-line
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Step 4: Start the development server
+    await runCommand("yarn", ["services:down"], "Stopping services");
+
+    console.log("\n👋 Cleanup completed successfully!");
+    process.exit(exitCode);
+  } catch (error) {
+    console.error("\n❌ Cleanup failed:", error);
+    process.exit(1);
+  }
+};
+
+(async () => {
+  try {
+    ["SIGINT", "SIGTERM", "SIGUSR1", "SIGUSR2"].forEach((signal) => {
+      process.on(signal, () => cleanup());
+    });
+
+    process.on("uncaughtException", (error) => {
+      console.error("\n💥 Uncaught Exception:", error);
+      cleanup(1);
+    });
+
+    await runCommand("yarn", ["services:up"], "Starting services!");
+    await runCommand("yarn", ["services:wait-db"], "Pulling up the database");
+    await runCommand("yarn", ["migrations:up"], "Running migrations!");
+
     console.log("\n🚀 Starting the development server...\n");
-    const devServer = spawn("yarn", ["next", "dev"], { stdio: "inherit" });
+    devServer = spawn("yarn", ["next", "dev"], { stdio: "inherit" });
 
     devServer.on("exit", (code) => {
-      console.log(
-        "🚀 Dev server exited with code " + code + ". Closing server...",
-      );
-    });
-
-    process.on("SIGINT", () => {
-      console.log("\n⚡ Received SIGINT (Ctrl+C). Initiating cleanup...");
-      cleanup();
+      if (code !== 0) {
+        console.error("\n❌ Development server exited unexpectedly");
+      }
+      cleanup(code || 0);
     });
   } catch (err) {
-    console.error("\n💥 An error occurred during the dev setup:");
-    console.error(err.message);
-    process.exit(1); // Exit with error code (1) in case of failure
+    console.error("\n💥 Error:", err.message);
+    cleanup(1);
   }
 })();
