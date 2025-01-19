@@ -4,10 +4,11 @@
   "description": "A project for creating an OCR capable of identifying different types of handwriting.",
   "main": "index.js",
   "scripts": {
+    "predev": "yarn lint:prettier-fix && yarn lint:eslint-check && yarn lint:secretlint-check && clear",
     "dev": " node src/infra/scripts/run-dev.js",
     "test": "yarn services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand --verbose\"",
     "posttest": "yarn services:down",
-    "test:watch": "jest --watchAll --runInBand",
+    "test:watch": "jest --watchAll --runInBand --verbose",
     "services:up": "docker compose -f src/infra/compose.yaml up -d",
     "services:stop": "docker compose -f src/infra/compose.yaml stop",
     "services:down": "docker compose -f src/infra/compose.yaml down",

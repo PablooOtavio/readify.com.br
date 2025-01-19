@@ -1,4 +1,6 @@
 import retry from "async-retry";
+import database from "src/infra/database";
+
 async function waitForAllServices() {
   await waitForWebServer();
   async function waitForWebServer() {
@@ -22,5 +24,14 @@ async function waitForAllServices() {
     }
   }
 }
-const orchestrator = { waitForAllServices };
+
+async function clearDatabase() {
+  try {
+    await database.query("DROP SCHEMA PUBLIC cascade; CREATE SCHEMA PUBLIC;");
+  } catch (error) {
+    throw new error("Failed to drop schema PUBLIC", error);
+  }
+}
+
+const orchestrator = { waitForAllServices, clearDatabase };
 export default orchestrator;
