@@ -14,6 +14,7 @@
     "services:wait-db": "node src/infra/scripts/wait-docker-up.js",
     "migrations:create": "node-pg-migrate -m src/infra/migrations create",
     "migrations:up": "node-pg-migrate -m src/infra/migrations --envPath .env.development up",
+    "lint": "yarn lint:prettier-check && yarn lint:eslint-check && yarn lint:secretlint-check",
     "lint:prettier-check": "prettier --check .",
     "lint:prettier-fix": "prettier --write .",
     "lint:eslint-check": "next lint --dir .",
