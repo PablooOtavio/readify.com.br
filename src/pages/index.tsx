@@ -1,7 +1,5 @@
 import Head from "next/head";
-import Image from "next/image";
 import React, { useState } from "react";
-
 export default function Home() {
   const [email, setEmail] = useState("");
 
@@ -21,18 +19,6 @@ export default function Home() {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <header className="w-full px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <Image src="/logo.svg" alt="Readify Logo" width={40} height={40} />
-          <span className="ml-2 text-xl font-semibold text-slate-800">
-            Readify
-          </span>
-        </div>
-        <button className="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors">
-          Registre-se Agora
-        </button>
-      </header>
 
       <main>
         {/* Hero Section */}
@@ -197,36 +183,6 @@ export default function Home() {
           </form>
         </section>
       </main>
-
-      <footer className="bg-slate-800 text-white py-8 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center mb-6">
-            <Image
-              src="/logo-white.svg"
-              alt="Readify Logo"
-              width={40}
-              height={40}
-            />
-            <span className="ml-2 text-xl font-semibold">Readify</span>
-          </div>
-          <p className="text-slate-300 text-sm mb-8">
-            Entre em contato para saber mais sobre experiências digitais para
-            alcançar e engajar efetivamente alunos e professores.
-          </p>
-          <hr className="border-slate-600 mb-6" />
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-slate-400">
-            <p>© 2025 Readify - Todos os direitos reservados</p>
-            <div className="mt-4 md:mt-0">
-              <a href="#" className="hover:text-teal-400 mr-4">
-                Política de Privacidade
-              </a>
-              <a href="#" className="hover:text-teal-400">
-                Termos de Serviço
-              </a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

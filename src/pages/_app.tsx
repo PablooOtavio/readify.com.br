@@ -3,16 +3,16 @@ import type { AppProps } from "next/app";
 import { NextPage } from "next";
 import { ReactElement, ReactNode } from "react";
 import Head from "next/head";
+import { Header } from "@/components/ui/header";
+import { Footer } from "@/components/ui/footer";
 
-// Define types for pages with layouts
 type NextPageWithLayout = NextPage & {
   // eslint-disable-next-line no-unused-vars
   getLayout?: (page: ReactElement) => ReactNode;
 };
 
-type AppPropsWithLayout = AppProps & {
-  Component: NextPageWithLayout;
-};
+type AppPropsWithLayout = AppProps & { Component: NextPageWithLayout };
+
 function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   // eslint-disable-next-line no-unused-vars
   const getLayout = Component.getLayout ?? ((page) => page);
@@ -27,7 +27,13 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      {getLayout(<Component {...pageProps} />)}
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          {getLayout(<Component {...pageProps} />)}
+        </main>
+        <Footer />
+      </div>
     </>
   );
 }

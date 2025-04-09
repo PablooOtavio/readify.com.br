@@ -4,5 +4,11 @@
     "plugin:jest/recommended",
     "next/core-web-vitals",
     "prettier"
+  ],
+  "overrides": [
+    {
+      "files": ["**/enum/**/*.ts", "**/*.enum.ts"],
+      "rules": { "no-unused-vars": "off" }
+    }
   ]
 }
