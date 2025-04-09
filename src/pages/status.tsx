@@ -10,7 +10,7 @@ import { StatusHistory } from "@/components/status/status-history";
 function useServiceStatus(
   data: StatusResponse | undefined,
   error: any,
-  isLoading: boolean
+  isLoading: boolean,
 ) {
   const getStatus = (dependency?: any) => {
     if (isLoading) return StatusEnum.Loading;
@@ -90,7 +90,7 @@ export default function StatusPage() {
       revalidateOnFocus: false,
       revalidateIfStale: true,
       dedupingInterval: 10000,
-    }
+    },
   );
   const { apiStatus, dbStatus } = useServiceStatus(data, error, isLoading);
   const lastSuccessfulUpdate = useLastUpdate(data);

@@ -5,6 +5,7 @@ import { StatusHistoryItem } from "@/types/status.types";
 
 interface StatusHistoryProps {
   data: StatusHistoryItem[];
+  //eslint-disable-next-line no-unused-vars
   onExpandChange?: (expanded: boolean) => void;
 }
 

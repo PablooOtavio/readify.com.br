@@ -19,7 +19,7 @@ export interface ServiceCardProps {
   status: StatusEnum;
   children: ReactNode;
 }
-interface StatusHistoryItem {
+export interface StatusHistoryItem {
   date: string;
   status: StatusEnum;
   uptime: number;
