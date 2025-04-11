@@ -2,7 +2,7 @@ import useSWR from "swr";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { StatusEnum } from "@/enum/status.enum";
-import { StatusResponse } from "@/types";
+import { StatusResponse, StatusHistoryItem } from "@/types";
 import { ServiceCard } from "@/components/status/service-card";
 import { UpdatedAt, ValueBadge } from "@/components/status/status-badges";
 import { StatusHistory } from "@/components/status/status-history";
@@ -10,7 +10,7 @@ import { StatusHistory } from "@/components/status/status-history";
 function useServiceStatus(
   data: StatusResponse | undefined,
   error: any,
-  isLoading: boolean,
+  isLoading: boolean
 ) {
   const getStatus = (dependency?: any) => {
     if (isLoading) return StatusEnum.Loading;
@@ -79,9 +79,70 @@ async function fetchApi(url: string) {
   }
 }
 
-export default function StatusPage() {
-  const historyData = getMockHistoryData();
+function ApiStatus({ apiStatus }: { apiStatus: StatusEnum }) {
+  const [historyData, setHistoryData] = useState<StatusHistoryItem[]>([]);
   const [apiCardExpanded, setApiCardExpanded] = useState(false);
+  useEffect(() => {
+    setHistoryData(getMockHistoryData());
+  }, []);
+
+  return (
+    <ServiceCard title="API" status={apiStatus} expanded={apiCardExpanded}>
+      <div className="text-sm text-gray-600">
+        {apiStatus === StatusEnum.Healthy
+          ? "API respondendo normalmente"
+          : "API com problemas de comunicação"}
+        {apiStatus === StatusEnum.Outage && (
+          <p className="text-sm text-red-500 mt-2">
+            Não foi possível obter informações atualizadas.
+          </p>
+        )}
+        <StatusHistory data={historyData} onExpandChange={setApiCardExpanded} />
+      </div>
+    </ServiceCard>
+  );
+}
+
+function DatabaseStatus({
+  dbStatus,
+  data,
+}: {
+  dbStatus: StatusEnum;
+  data?: StatusResponse;
+}) {
+  return (
+    <ServiceCard title="Database" status={dbStatus}>
+      {dbStatus === StatusEnum.Healthy ? (
+        <div className="flex flex-col gap-2 text-sm text-gray-600">
+          <div>
+            <span className="font-semibold text-gray-800">Version:</span>{" "}
+            <ValueBadge value={data?.dependencies?.database?.version} />
+          </div>
+          <div>
+            <span className="font-semibold text-gray-800">
+              Max Connections:
+            </span>{" "}
+            <ValueBadge value={data?.dependencies?.database?.max_connections} />
+          </div>
+          <div>
+            <span className="font-semibold text-gray-800">
+              Opened Connections:
+            </span>{" "}
+            <ValueBadge
+              value={data?.dependencies?.database?.opened_connections}
+            />
+          </div>
+        </div>
+      ) : (
+        <p className="text-sm text-red-500">
+          Não foi possível obter informações do banco de dados.
+        </p>
+      )}
+    </ServiceCard>
+  );
+}
+
+export default function StatusPage() {
   const { data, error, isLoading } = useSWR<StatusResponse>(
     "/api/v1/status",
     fetchApi,
@@ -90,7 +151,7 @@ export default function StatusPage() {
       revalidateOnFocus: false,
       revalidateIfStale: true,
       dedupingInterval: 10000,
-    },
+    }
   );
   const { apiStatus, dbStatus } = useServiceStatus(data, error, isLoading);
   const lastSuccessfulUpdate = useLastUpdate(data);
@@ -109,59 +170,9 @@ export default function StatusPage() {
           <h1 className="text-4xl font-bold">Status dos Serviços</h1>
           <UpdatedAt timestamp={lastSuccessfulUpdate} />
         </div>
-
         <div className="grid gap-12 md:grid-cols-2">
-          <ServiceCard
-            title="API"
-            status={apiStatus}
-            expanded={apiCardExpanded}
-          >
-            <div className="text-sm text-gray-600">
-              {apiStatus === StatusEnum.Healthy
-                ? "API respondendo normalmente"
-                : "API com problemas de comunicação"}
-              {apiStatus === StatusEnum.Outage && (
-                <p className="text-sm text-red-500 mt-2">
-                  Não foi possível obter informações atualizadas.
-                </p>
-              )}
-              <StatusHistory
-                data={historyData}
-                onExpandChange={setApiCardExpanded} // Passamos o callback
-              />
-            </div>
-          </ServiceCard>
-
-          <ServiceCard title="Database" status={dbStatus}>
-            {dbStatus === StatusEnum.Healthy ? (
-              <div className="flex flex-col gap-2 text-sm text-gray-600">
-                <div>
-                  <span className="font-semibold text-gray-800">Version:</span>{" "}
-                  <ValueBadge value={data?.dependencies?.database?.version} />
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-800">
-                    Max Connections:
-                  </span>{" "}
-                  <ValueBadge
-                    value={data?.dependencies?.database?.max_connections}
-                  />
-                </div>
-                <div>
-                  <span className="font-semibold text-gray-800">
-                    Opened Connections:
-                  </span>{" "}
-                  <ValueBadge
-                    value={data?.dependencies?.database?.opened_connections}
-                  />
-                </div>
-              </div>
-            ) : (
-              <p className="text-sm text-red-500">
-                Não foi possível obter informações do banco de dados.
-              </p>
-            )}
-          </ServiceCard>
+          <ApiStatus apiStatus={apiStatus} />
+          <DatabaseStatus dbStatus={dbStatus} data={data} />
         </div>
       </main>
     </>
