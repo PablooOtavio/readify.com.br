@@ -19,11 +19,12 @@ class Database {
       client = await this.getNewClient();
       const result = await client.query(queryObject);
       return result;
-    } catch (err) {
-      throw new Error(err);
+    } catch (error) {
+      console.error("Failed to get a new client to the database", error);
+      throw error;
     } finally {
       if (client) {
-        await client.end();
+        await client?.end();
       }
     }
   }
@@ -37,14 +38,8 @@ class Database {
       password: process.env.POSTGRES_PASSWORD,
       ssl: getSSLValues(),
     });
-
-    try {
-      await client.connect();
-      return client;
-    } catch (err) {
-      console.error("Failed to connect to the database", err);
-      throw err;
-    }
+    await client.connect();
+    return client;
   }
 }
 
