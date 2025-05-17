@@ -1,4 +1,5 @@
 import { Client } from "pg";
+import { ServiceError } from "src/infra/errors.js";
 
 function getSSLValues() {
   if (process.env.POSTGRES_CA) {
@@ -20,8 +21,12 @@ class Database {
       const result = await client.query(queryObject);
       return result;
     } catch (error) {
-      console.error("Failed to get a new client to the database", error);
-      throw error;
+      const serviceErrorObject = new ServiceError({
+        cause: error,
+        message: "Database query failed",
+      });
+
+      throw serviceErrorObject;
     } finally {
       if (client) {
         await client?.end();
@@ -33,7 +38,7 @@ class Database {
     const client = new Client({
       database: process.env.POSTGRES_DB,
       host: process.env.POSTGRES_HOST,
-      port: process.env.POSTGRES_PORT,
+      port: Number(process.env.POSTGRES_PORT),
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       ssl: getSSLValues(),
