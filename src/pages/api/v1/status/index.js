@@ -20,7 +20,7 @@ async function getHandler(request, response) {
 
   const versionValue = versionResult.rows[0].server_version;
   const maxConnectionsValue = parseInt(
-    maxConnectionsResult.rows[0].max_connections
+    maxConnectionsResult.rows[0].max_connections,
   );
   const openedConnectionsValue = openedConnectionsResult.rows[0].count;
 
