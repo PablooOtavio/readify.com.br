@@ -1,101 +1,117 @@
-const { spawn } = require("node:child_process");
-let cleanupCalled = false;
-let devServer = null;
+#!/usr/bin/env node
+const { spawn } = require("child_process");
+const signals = ["SIGINT", "SIGTERM", "SIGUSR1", "SIGUSR2"];
+class WorkerManager {
+  constructor() {
+    this.workers = new Set();
+  }
 
-const clearLastLine = () => {
-  process.stdout.write("\x1b[1A\x1b[2K");
-};
+  add(proc) {
+    this.workers.add(proc);
+    proc.once("exit", () => this.workers.delete(proc));
+  }
 
-const shouldShowLogs = (command) => {
-  return (
-    command.includes("migrations:up") ||
-    command.includes("services:wait-db") ||
-    command.includes("next") ||
-    command.includes("services:down")
-  );
-};
-
-const runCommand = (command, args = [], description) => {
-  //eslint-disable-next-line
-  return new Promise((resolve, reject) => {
-    if (command === "services:down" && cleanupCalled) {
-      return resolve();
+  killAll(signal = "SIGTERM") {
+    for (const proc of this.workers) {
+      proc.removeAllListeners();
+      proc.kill(signal);
     }
+  }
 
-    console.log(`\n⏳ ${description || command}`);
+  count() {
+    return this.workers.size;
+  }
+}
 
-    const child = spawn(command, args, {
-      stdio: shouldShowLogs(args[0]) ? "inherit" : ["ignore", "pipe", "pipe"],
+const manager = new WorkerManager();
+let cleaningUp = false;
+
+async function cleanup(exitCode = 0) {
+  if (cleaningUp) return exitCode;
+  cleaningUp = true;
+  try {
+    spawn("yarn", ["services:stop"]);
+    return exitCode;
+  } catch (err) {
+    console.error("\n❌ Clean up Failed:", err);
+    return 1;
+  }
+}
+async function gracefulShutdown() {
+  await cleanup();
+  manager.killAll();
+
+  setTimeout(() => {
+    console.error("Execution time exceeded. Forcing exit.");
+    process.exit(1);
+  }, 5000).unref();
+}
+
+function spawnYarn(args, label, options = {}) {
+  return new Promise((resolve, reject) => {
+    console.log(`\n⏳ ${label}: yarn ${args.join(" ")}`);
+    const proc = spawn("yarn", args, {
+      stdio: "inherit",
       shell: true,
+      detached: true,
+      timeout: 10000,
+      ...options,
     });
 
-    child.on("error", (error) => {
-      console.error(`\n❌ ${description || command} failed:`, error);
-      reject(error);
-    });
+    manager.add(proc);
 
-    child.on("exit", (code) => {
+    proc.once("close", (code) => {
       if (code === 0) {
-        clearLastLine();
-        console.log(`\n✅ ${description || command} completed!`);
-        resolve();
+        console.log(`✅ ${label} finished successfully`);
+        resolve(code);
       } else {
-        reject(new Error(`${description || command} failed with code ${code}`));
+        reject(new Error(`${label} failed with the exit code ${code}`));
       }
     });
   });
-};
+}
 
-const cleanup = async (exitCode = 0) => {
-  if (cleanupCalled) return;
-  cleanupCalled = true;
+async function runDevServer() {
+  console.log("\n🚀 Initializing server...");
+  return new Promise((resolve) => {
+    const devServer = spawn("yarn", ["next", "dev"], {
+      stdio: "inherit",
+      shell: true,
+    });
 
-  console.log("\n\n🛑 Shutting down services...");
+    manager.add(devServer);
+
+    const onSignal = () => {
+      devServer.kill("SIGTERM");
+    };
+    signals.forEach((sig) => process.once(sig, onSignal));
+
+    devServer.once("close", (code) => {
+      signals.forEach((sig) => process.removeListener(sig, onSignal));
+      resolve(code);
+    });
+  });
+}
+
+async function main() {
+  process.on("SIGINT", gracefulShutdown);
+  process.on("SIGTERM", gracefulShutdown);
 
   try {
-    if (devServer && !devServer.killed) {
-      devServer.kill("SIGTERM");
-    }
-
-    //eslint-disable-next-line
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    await runCommand("yarn", ["services:down"], "Stopping services");
-
-    console.log("\n👋 Cleanup completed successfully!");
-    process.exit(exitCode);
-  } catch (error) {
-    console.error("\n❌ Cleanup failed:", error);
-    process.exit(1);
+    await spawnYarn(["services:up"], "Initializing docker compose");
+    await spawnYarn(["services:wait-db"], "Waiting for database");
+    await spawnYarn(["migrations:up"], "Executing migrations");
+    console.clear();
+    const devExitCode = await runDevServer();
+    return devExitCode;
+  } catch (err) {
+    console.error("\n💥 An unexpected error ocourred:", err);
+    return await gracefulShutdown();
   }
-};
+}
 
 (async () => {
-  try {
-    ["SIGINT", "SIGTERM", "SIGUSR1", "SIGUSR2"].forEach((signal) => {
-      process.on(signal, () => cleanup());
-    });
-
-    process.on("uncaughtException", (error) => {
-      console.error("\n💥 Uncaught Exception:", error);
-      cleanup(1);
-    });
-
-    await runCommand("yarn", ["services:up"], "Starting services!");
-    await runCommand("yarn", ["services:wait-db"], "Pulling up the database");
-    await runCommand("yarn", ["migrations:up"], "Running migrations!");
-
-    console.log("\n🚀 Starting the development server...\n");
-    devServer = spawn("yarn", ["next", "dev"], { stdio: "inherit" });
-
-    devServer.on("exit", (code) => {
-      if (code !== 0) {
-        console.error("\n❌ Development server exited unexpectedly");
-      }
-      cleanup(code || 0);
-    });
-  } catch (err) {
-    console.error("\n💥 Error:", err.message);
-    cleanup(1);
-  }
+  const exitCode = await main();
+  await cleanup(exitCode);
+  process.exit(exitCode);
 })();
