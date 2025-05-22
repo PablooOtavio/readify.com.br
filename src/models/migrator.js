@@ -19,7 +19,7 @@ async function runMigrations({ dryRun }) {
   } catch (error) {
     throw new ServiceError(
       "An unexpected error occurred while running migrations",
-      error
+      error,
     );
   } finally {
     await dbClient?.end();
