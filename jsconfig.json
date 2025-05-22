@@ -10,8 +10,7 @@
     "target": "ESNext",
     "jsx": "react-jsx",
     "strict": false,
-    "allowJs": true,
-    "checkJs": true
+    "allowJs": true
   },
   "exclude": ["node_modules", ".next", "out"],
   "include": ["src/**/*"]
