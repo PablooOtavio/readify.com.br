@@ -26,15 +26,8 @@ async function runMigrations({ dryRun }) {
   }
 }
 
-async function listPendingMigrations() {
-  return await runMigrations({ dryRun: true });
-}
-
-async function runPendingMigrations() {
-  return await runMigrations({ dryRun: false });
-}
 const migrator = {
-  listPendingMigrations,
-  runPendingMigrations,
+  listPendingMigrations: async () => runMigrations({ dryRun: true }),
+  runPendingMigrations: async () => runMigrations({ dryRun: false }),
 };
 export default migrator;
