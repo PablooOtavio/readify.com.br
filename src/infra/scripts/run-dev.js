@@ -44,7 +44,7 @@ async function gracefulShutdown() {
   setTimeout(() => {
     console.error("Execution time exceeded. Forcing exit.");
     process.exit(1);
-  }, 5000).unref();
+  }, 60000).unref();
 }
 
 function spawnYarn(args, label, options = {}) {
@@ -54,7 +54,7 @@ function spawnYarn(args, label, options = {}) {
       stdio: "inherit",
       shell: true,
       detached: true,
-      timeout: 10000,
+      timeout: 60000,
       ...options,
     });
 
