@@ -12,7 +12,7 @@ async function runMigrations({ dryRun }) {
       dbClient,
       dir: resolve("src", "infra", "migrations"),
       direction: "up",
-      verbose: true,
+      log: () => {},
       migrationsTable: "pgmigrations",
     });
     return migratedMigrations;
