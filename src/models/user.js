@@ -1,9 +1,10 @@
 import database from "src/infra/database";
+import password from "src/models/password";
 import { ValidationError, NotFoundError } from "src/infra/errors";
 
 async function create(data) {
   await validateUniqueData(data.email, data.username);
-
+  data.password = await password.hash(data.password);
   const newUser = await runInsertQuery(data);
   return newUser;
 
@@ -20,6 +21,7 @@ async function create(data) {
 
     return result.rows[0];
   }
+
   async function validateUniqueData(email, username) {
     const { rowCount, rows } = await database.query({
       text: `
