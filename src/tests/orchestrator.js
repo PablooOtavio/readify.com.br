@@ -12,7 +12,7 @@ async function waitForAllServices() {
       retries: 100,
       onRetry: (error, attempt) => {
         console.log(
-          `Attempt ${attempt} - Failed to fetch Status Page: ${error.message}`
+          `Attempt ${attempt} - Failed to fetch Status Page: ${error.message}`,
         );
       },
       minTimeout: 100,

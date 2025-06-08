@@ -146,7 +146,7 @@ describe("PATCH /api/v1/users", () => {
 
         const response = await updateUser(
           nonexistentUser.username,
-          nonexistentUser
+          nonexistentUser,
         );
         expect(response.status).toBe(404);
 
