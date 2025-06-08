@@ -12,7 +12,7 @@ async function waitForAllServices() {
       retries: 100,
       onRetry: (error, attempt) => {
         console.log(
-          `Attempt ${attempt} - Failed to fetch Status Page: ${error.message}`,
+          `Attempt ${attempt} - Failed to fetch Status Page: ${error.message}`
         );
       },
       minTimeout: 100,
@@ -42,7 +42,7 @@ async function runMigrations() {
 }
 
 async function createUser(userData = {}) {
-  return await user.create({
+  return user.create({
     username: userData.username || fakeUsername().replace(/[_.-]/g, ""),
     email: userData.email || fakeEmail(),
     password: userData.password || "SuperSecurePassword123!@%#@!&@¨(!*@)(#*",

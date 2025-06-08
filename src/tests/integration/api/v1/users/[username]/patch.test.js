@@ -77,20 +77,17 @@ describe("PATCH /api/v1/users", () => {
         await PasswordValidation(createdUser.username, updateData.password);
       });
 
-      test("with a diferent case username", async () => {
+      test("with a different case username", async () => {
         const createdUser = await orchestrator.createUser();
 
         const username = createdUser.username;
         const updateData = {
           username: username.toUpperCase(),
         };
-        const responseponse = await updateUser(
-          createdUser.username,
-          updateData,
-        );
-        expect(responseponse.status).toBe(200);
+        const response = await updateUser(createdUser.username, updateData);
+        expect(response.status).toBe(200);
 
-        const responseBody = await responseponse.json();
+        const responseBody = await response.json();
         UserValidation(responseBody, {
           username: updateData.username,
           email: createdUser.email,
@@ -106,10 +103,10 @@ describe("PATCH /api/v1/users", () => {
           username: firstUser.username,
         };
 
-        const responseponse = await updateUser(secondUser.username, updateData);
-        expect(responseponse.status).toBe(400);
+        const response = await updateUser(secondUser.username, updateData);
+        expect(response.status).toBe(400);
 
-        const responseBody = await responseponse.json();
+        const responseBody = await response.json();
 
         expect(responseBody).toEqual({
           statusCode: 400,
@@ -127,10 +124,10 @@ describe("PATCH /api/v1/users", () => {
           email: firstUser.email,
         };
 
-        const responseponse = await updateUser(secondUser.username, updateData);
-        expect(responseponse.status).toBe(400);
+        const response = await updateUser(secondUser.username, updateData);
+        expect(response.status).toBe(400);
 
-        const responseBody = await responseponse.json();
+        const responseBody = await response.json();
 
         expect(responseBody).toEqual({
           statusCode: 400,
@@ -149,7 +146,7 @@ describe("PATCH /api/v1/users", () => {
 
         const response = await updateUser(
           nonexistentUser.username,
-          nonexistentUser,
+          nonexistentUser
         );
         expect(response.status).toBe(404);
 
