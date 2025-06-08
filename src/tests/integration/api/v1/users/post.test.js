@@ -1,7 +1,5 @@
+import { UserValidation, PasswordValidation } from "src/tests/helpers/users";
 import orchestrator from "src/tests/orchestrator";
-import user from "src/models/user";
-import { version as uuidVersion } from "uuid";
-import password from "src/models/password";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -35,31 +33,12 @@ describe("POST /api/v1/users", () => {
 
         const responseBody = await response.json();
 
-        expect(responseBody).toEqual({
-          id: responseBody.id,
+        UserValidation(responseBody, {
           username: userData.username,
           email: userData.email,
-          password: responseBody.password,
-          created_at: responseBody.created_at,
-          updated_at: responseBody.updated_at,
         });
 
-        expect(uuidVersion(responseBody.id)).toBe(4);
-        expect(Date.parse(responseBody.created_at)).not.toBeNaN();
-        expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
-
-        const userInDb = await user.findOneByUsername(userData.username);
-        const isPasswordValid = await password.compare(
-          userData.password,
-          userInDb.password,
-        );
-        const InvalidPassword = await password.compare(
-          "WrongPassword",
-          userInDb.password,
-        );
-
-        expect(isPasswordValid).toBe(true);
-        expect(InvalidPassword).toBe(false);
+        await PasswordValidation(userData.username, userData.password);
       });
 
       test("With duplicated email", async () => {
@@ -75,21 +54,20 @@ describe("POST /api/v1/users", () => {
           password: "Password123",
         };
 
-        const response1 = await createUser(firstUser);
-        expect(response1.status).toBe(201);
+        const resA = await createUser(firstUser);
+        expect(resA.status).toBe(201);
 
-        const response2 = await createUser(secondUser);
+        const resB = await createUser(secondUser);
 
-        const responseBody = await response2.json();
+        const responseBody = await resB.json();
 
+        expect(resB.status).toBe(400);
         expect(responseBody).toEqual({
           statusCode: 400,
           name: "ValidationError",
           message: "Email already exists.",
           action: "Please, use a different Email.",
         });
-
-        expect(response2.status).toBe(400);
       });
 
       test("With duplicated username", async () => {
@@ -105,13 +83,15 @@ describe("POST /api/v1/users", () => {
           password: "Password123",
         };
 
-        const response1 = await createUser(firstUser);
+        const resA = await createUser(firstUser);
 
-        expect(response1.status).toBe(201);
+        expect(resA.status).toBe(201);
 
-        const response2 = await createUser(secondUser);
+        const resB = await createUser(secondUser);
 
-        const responseBody = await response2.json();
+        const responseBody = await resB.json();
+
+        expect(resB.status).toBe(400);
 
         expect(responseBody).toEqual({
           statusCode: 400,
@@ -119,8 +99,6 @@ describe("POST /api/v1/users", () => {
           message: "Username already exists.",
           action: "Please, use a different Username.",
         });
-
-        expect(response2.status).toBe(400);
       });
     });
   });
