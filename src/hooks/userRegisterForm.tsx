@@ -29,7 +29,7 @@ export function useUserRegisterForm() {
       confirmPassword: (value: string) =>
         validateConfirmPassword(value, formData.password),
     }),
-    [formData.password]
+    [formData.password],
   );
 
   const handleChange = useCallback(
@@ -46,7 +46,7 @@ export function useUserRegisterForm() {
         [field]: validators[field](value),
       }));
     },
-    [validators]
+    [validators],
   );
 
   const resetForm = useCallback(() => {

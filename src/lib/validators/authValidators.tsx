@@ -29,7 +29,7 @@ export function validatePassword(password: string): string {
 }
 export function validateConfirmPassword(
   confirmPassword: string,
-  password: string
+  password: string,
 ): string {
   if (!confirmPassword) return "Confirmação de senha é obrigatória";
   if (confirmPassword !== password) return "As senhas não coincidem";
