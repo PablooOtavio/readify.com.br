@@ -1,4 +1,4 @@
-import { useState, FormEvent, ChangeEvent, useCallback } from "react";
+import { useState, FormEvent } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -7,84 +7,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
-import StatusMessage from "src/components/modals/statusMessage";
-
-function usePreRegisterForm() {
-  const [formData, setFormData] = useState({ name: "", email: "" });
-  const [errors, setErrors] = useState({ name: "", email: "" });
-
-  const validateName = useCallback((name: string): string => {
-    const trimmedName = name.trim();
-    if (!trimmedName) return "Nome é obrigatório";
-
-    const nameWords = trimmedName
-      .split(/\s+/)
-      .filter((word) => word.length > 0);
-    if (nameWords.length < 2) {
-      return "Por favor, informe pelo menos nome e sobrenome";
-    }
-
-    const hasShortWords = nameWords.some((word) => word.length < 2);
-    if (hasShortWords) {
-      return "Não use abreviações";
-    }
-
-    return "";
-  }, []);
-
-  const validateEmail = useCallback((email: string): string => {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) return "Email é obrigatório";
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      return "Por favor, informe um email válido";
-    }
-
-    return "";
-  }, []);
-
-  const handleChange = useCallback(
-    <K extends keyof typeof formData>(field: K) =>
-      (e: ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setFormData((prev) => ({ ...prev, [field]: value }));
-
-        // Validação em tempo real
-        let error = "";
-        if (field === "name") {
-          error = validateName(value);
-        } else if (field === "email") {
-          error = validateEmail(value);
-        }
-
-        setErrors((prev) => ({ ...prev, [field]: error }));
-      },
-    [validateName, validateEmail],
-  );
-
-  const resetForm = useCallback(() => {
-    setFormData({ name: "", email: "" });
-    setErrors({ name: "", email: "" });
-  }, []);
-
-  const isFormValid =
-    !errors.name &&
-    !errors.email &&
-    formData.name.trim() !== "" &&
-    formData.email.trim() !== "";
-
-  return {
-    formData,
-    errors,
-    handleChange,
-    resetForm,
-    isFormValid,
-  };
-}
+import StatusMessage from "@/components/modals/statusMessage";
+import { useUserRegisterForm } from "src/hooks/userRegisterForm";
 
 interface PreRegisterModalProps {
   text: string;
@@ -92,8 +20,10 @@ interface PreRegisterModalProps {
 }
 
 const FORM_FIELDS = [
-  { key: "name", label: "Nome", type: "text" },
+  { key: "username", label: "Nome de usuário", type: "text" },
   { key: "email", label: "Email", type: "email" },
+  { key: "password", label: "Senha", type: "password" },
+  { key: "confirmPassword", label: "Confirme a senha", type: "password" },
 ] as const;
 
 export default function PreRegisterModal({
@@ -101,20 +31,21 @@ export default function PreRegisterModal({
   colors,
 }: PreRegisterModalProps) {
   const { formData, errors, handleChange, resetForm, isFormValid } =
-    usePreRegisterForm();
+    useUserRegisterForm();
   const [status, setStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handlePreRegister = async (e: FormEvent) => {
     e.preventDefault();
-
     if (!isFormValid) return;
 
     setStatus("loading");
 
     try {
-      const res = await fetch("/api/v1/pre-register", {
+      const res = await fetch("/api/v1/users", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -125,12 +56,9 @@ export default function PreRegisterModal({
       if (!res.ok) throw new Error("Erro na resposta");
 
       setStatus("success");
-      setTimeout(() => {
-        resetForm();
-        setStatus("idle");
-      }, 3000);
     } catch {
       setStatus("error");
+    } finally {
       setTimeout(() => {
         resetForm();
         setStatus("idle");
@@ -200,20 +128,46 @@ export default function PreRegisterModal({
               {FORM_FIELDS.map(({ key, label, type }) => (
                 <div key={key}>
                   <label className="block text-sm mb-1">{label}</label>
-                  <Input
-                    type={type}
-                    value={formData[key]}
-                    onChange={handleChange(key)}
-                    required
-                    className={
-                      errors[key] ? "border-red-500 focus:border-red-500" : ""
-                    }
-                  />
+
+                  {key === "password" || key === "confirmPassword" ? (
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={formData[key]}
+                        onChange={handleChange(key)}
+                        required
+                        className={`pr-10 ${errors[key] ? "border-red-500 focus:border-red-500" : ""}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-sm text-slate-600"
+                      >
+                        {showPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <Input
+                      type={type}
+                      value={formData[key]}
+                      onChange={handleChange(key)}
+                      required
+                      className={
+                        errors[key] ? "border-red-500 focus:border-red-500" : ""
+                      }
+                    />
+                  )}
+
                   {errors[key] && (
                     <p className="text-red-500 text-xs mt-1">{errors[key]}</p>
                   )}
                 </div>
               ))}
+
               <Button
                 type="submit"
                 disabled={isDisabled}
