@@ -2,13 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PreRegisterModal from "../modals/preRegisterModal";
 
-type HeaderProps = {
-  buttonText?: string;
-  buttonLink?: string;
-  showButton?: boolean;
-};
-
-export function Header({}: HeaderProps) {
+export function Header() {
   return (
     <header className="w-full px-6 py-4 flex justify-between items-center">
       <div className="flex items-center">
