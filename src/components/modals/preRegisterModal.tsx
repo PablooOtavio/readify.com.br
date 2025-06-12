@@ -33,10 +33,11 @@ export default function PreRegisterModal({
   const { formData, errors, handleChange, resetForm, isFormValid } =
     useUserRegisterForm();
   const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
+    "idle" | "loading" | "success" | "error" | "attention"
   >("idle");
 
   const [showPassword, setShowPassword] = useState(false);
+  const [attentionMessage, setAttentionMessage] = useState("");
 
   const handlePreRegister = async (e: FormEvent) => {
     e.preventDefault();
@@ -53,16 +54,28 @@ export default function PreRegisterModal({
         body: JSON.stringify(formData),
       });
 
+      if (res.status === 400) {
+        const errorBody = await res.json();
+        setStatus("attention");
+        setAttentionMessage(errorBody?.message || "Conflito de dados");
+        setTimeout(() => {
+          setStatus("idle");
+        }, 3000); // 3 segundos para a animação executar
+        return;
+      }
+
       if (!res.ok) throw new Error("Erro na resposta");
 
       setStatus("success");
-    } catch {
-      setStatus("error");
-    } finally {
+
       setTimeout(() => {
         resetForm();
         setStatus("idle");
       }, 3000);
+    } catch {
+      setTimeout(() => {
+        setStatus("idle");
+      }, 3000); // 3 segundos para a animação executar
     }
   };
 
@@ -114,6 +127,14 @@ export default function PreRegisterModal({
             >
               <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
             </motion.div>
+          )}
+          {status === "attention" && (
+            <StatusMessage
+              status="attention"
+              videoSrc="/animations/attention.webm"
+              message={attentionMessage}
+              textColor="text-yellow-700"
+            />
           )}
 
           {status === "idle" && (

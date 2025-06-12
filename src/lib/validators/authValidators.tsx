@@ -1,10 +1,12 @@
 export function validateUsername(username: string): string {
   const value = username.trim();
-  if (!value) return "Username é obrigatório";
-  if (value.length < 3) return "Username deve ter pelo menos 3 caracteres";
-  if (value.length > 20) return "Username deve ter no máximo 20 caracteres";
+  if (!value) return "Nome de usuário é obrigatório";
+  if (value.length < 3)
+    return "Nome de usuário deve ter pelo menos 3 caracteres";
+  if (value.length > 30)
+    return "Nome de usuário deve ter no máximo 30 caracteres";
   if (!/^[a-zA-Z0-9_-]+$/.test(value))
-    return "Username deve conter apenas letras, números, _ ou -";
+    return "Nome de usuário deve conter apenas letras, números, _ ou -";
   return "";
 }
 
