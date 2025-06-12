@@ -1,17 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import PreRegisterModal from "src/components/modals/preRegisterModal";
 
-type HeaderProps = {
-  buttonText?: string;
-  buttonLink?: string;
-  showButton?: boolean;
-};
-
-export function Header({
-  buttonText = "Registre-se Agora",
-  buttonLink = "/register",
-  showButton = true,
-}: HeaderProps) {
+export function Header() {
   return (
     <header className="w-full px-6 py-4 flex justify-between items-center">
       <div className="flex items-center">
@@ -25,13 +16,10 @@ export function Header({
         </Link>
       </div>
 
-      {showButton && (
-        <Link href={buttonLink}>
-          <button className="bg-slate-800 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-colors">
-            {buttonText}
-          </button>
-        </Link>
-      )}
+      <PreRegisterModal
+        text="Registre-se Agora"
+        colors="bg-slate-800 text-white hover:bg-slate-700"
+      />
     </header>
   );
 }
