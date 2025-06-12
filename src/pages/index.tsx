@@ -1,14 +1,7 @@
 import Head from "next/head";
-import React, { useState } from "react";
+import PreRegisterModal from "@/components/modals/preRegisterModal";
+
 export default function Home() {
-  const [email, setEmail] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Registering email:", email);
-    setEmail("");
-  };
-
   return (
     <div className="min-h-screen bg-white">
       <Head>
@@ -22,7 +15,7 @@ export default function Home() {
 
       <main>
         {/* Hero Section */}
-        <section className="bg-slate-800 text-white py-16 px-6 md:px-12 lg:px-20 rounded-3xl">
+        <section className="bg-slate-800 text-white py-16 px-6 md:px-12 lg:px-20 rounded-md">
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -36,17 +29,7 @@ export default function Home() {
                 compartilhamento de materiais de estudo de forma totalmente
                 gratuita.
               </p>
-              <div className="inline-flex rounded-md overflow-hidden">
-                <input
-                  type="email"
-                  className="bg-slate-700 text-white px-4 py-3 outline-none min-w-[200px]"
-                  placeholder="Seu email"
-                />
-                <button className="bg-teal-400 text-slate-800 px-4 py-3 font-medium hover:bg-teal-300 transition-colors">
-                  <span className="mr-2">Registre-se para mais novidades</span>
-                  <span>→</span>
-                </button>
-              </div>
+              <PreRegisterModal text="Registre-se para mais novidades" />
             </div>
             <div className="flex justify-center">
               <div className="relative h-64 w-64 md:h-80 md:w-80">
@@ -155,7 +138,6 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Coming Soon / Registration Section */}
         <section className="py-16 px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-6">
             Lançamento em Breve!
@@ -165,22 +147,7 @@ export default function Home() {
             online. Se registre para mais novidades!
           </p>
 
-          <form onSubmit={handleSubmit} className="max-w-lg mx-auto flex">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@email.com"
-              className="flex-1 px-4 py-3 rounded-l-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
-              required
-            />
-            <button
-              type="submit"
-              className="bg-slate-800 text-white px-6 py-3 rounded-r-md hover:bg-slate-700 transition-colors"
-            >
-              Registrar-se
-            </button>
-          </form>
+          <PreRegisterModal text="Registre-se" />
         </section>
       </main>
     </div>
