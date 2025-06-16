@@ -28,7 +28,7 @@ export default function StatusMessage({
         playsInline
         className="w-32 h-32 mb-4"
         onLoadedData={(e) => {
-          e.currentTarget.playbackRate = 1.5;
+          e.currentTarget.playbackRate = 1.5; // 50% mais rápido
         }}
       />
       <p className={`font-semibold text-lg ${textColor}`}>{message}</p>

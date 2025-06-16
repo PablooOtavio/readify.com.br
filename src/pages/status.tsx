@@ -165,7 +165,7 @@ export default function StatusPage() {
           content="Página de status em tempo real dos serviços Readify"
         />
       </Head>
-      <main className="container mx-auto px-14 py-1 max-w-screen-xl mx-auto pb-24">
+      <main className="container mx-auto pb-24">
         <div className="flex flex-col py-2 mb-12">
           <h1 className="text-4xl font-bold">Status dos Serviços</h1>
           <UpdatedAt timestamp={lastSuccessfulUpdate} />
