@@ -16,7 +16,7 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <section className="bg-slate-800 text-white py-16 px-6 md:px-12 lg:px-20 rounded-md">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-center p-6 md:p-0 rounded-lg md:rounded-none hover:shadow-lg md:hover:shadow-none transition-shadow">
             <div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 Uma nova forma de Compartilhar Conhecimento
@@ -31,7 +31,7 @@ export default function Home() {
               </p>
               <PreRegisterModal text="Registre-se para mais novidades" />
             </div>
-            <div className="flex justify-center">
+            <div className="hidden md:flex justify-center">
               <div className="relative h-64 w-64 md:h-80 md:w-80">
                 {/* Abstract 3D elements would go here - using divs with styling for now */}
                 <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-gradient-to-br from-slate-600 to-slate-900 opacity-80"></div>
