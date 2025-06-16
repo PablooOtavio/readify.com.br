@@ -20,10 +20,12 @@ export function ServiceCard({
   return (
     <motion.div
       className={`
-        bg-white border border-gray-200 rounded-2xl p-6 md:p-8 
-        shadow-lg hover:shadow-xl
-        ${expanded ? "md:col-span-2" : ""}
-      `}
+    bg-white border border-gray-200 rounded-2xl 
+    p-4 sm:p-6 md:p-8 
+    shadow-lg hover:shadow-xl 
+    ${expanded ? "col-span-full md:col-span-2" : ""}
+    overflow-hidden
+  `}
       layout
       initial={{ opacity: 0.9 }}
       animate={{ opacity: 1, scale: expanded ? 1.0 : 1 }}
@@ -34,11 +36,11 @@ export function ServiceCard({
       }}
     >
       <CardHeader className="flex justify-between items-center mb-4 p-0">
-        <h2 className="text-lg font-bold text-gray-800">{title}</h2>
+        <h2 className="text-base sm:text-lg font-bold text-gray-800">
+          {title}
+        </h2>
         <StatusBadge status={status} />
       </CardHeader>
-
-      {/* Conteúdo com altura fixa e sem animação de altura */}
       <CardContent className="p-0">{children}</CardContent>
     </motion.div>
   );

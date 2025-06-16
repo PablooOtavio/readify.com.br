@@ -94,7 +94,7 @@ export default function PreRegisterModal({
     <Dialog>
       <DialogTrigger asChild>
         <Button
-          className={`bg-[var(--neon-cyan)] text-slate-800 px-8 py-6 text-lg font-medium hover:bg-teal-300 transition-colors shadow-md ring-1 ring-white/10 ${colors}`}
+          className={`bg-[var(--neon-cyan)] text-slate-800 px-4 py-3 text-base sm:px-8 sm:py-6 sm:text-lg font-medium hover:bg-teal-300 transition-colors shadow-md ring-1 ring-white/10 ${colors}`}
         >
           {text}
         </Button>
