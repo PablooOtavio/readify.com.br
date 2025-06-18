@@ -18,11 +18,11 @@ export async function PasswordValidation(username, userPassword) {
   const foundUser = await user.findOneByUsername(username);
   const isPasswordValid = await password.compare(
     userPassword,
-    foundUser.password
+    foundUser.password,
   );
   const InvalidPassword = await password.compare(
     "WrongPassword",
-    foundUser.password
+    foundUser.password,
   );
 
   expect(isPasswordValid).toBe(true);
