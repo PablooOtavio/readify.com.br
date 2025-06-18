@@ -11,7 +11,14 @@ export default router.handler(controller.errorHandlers);
 async function getHandler(request, response) {
   const username = request.query.username;
   const userFound = await user.findOneByUsername(username);
-  response.status(200).json(userFound);
+  const sanitizedUser = {
+    id: userFound.id,
+    username: userFound.username,
+    email: userFound.email,
+    created_at: userFound.created_at,
+    updated_at: userFound.updated_at,
+  };
+  response.status(200).json(sanitizedUser);
 }
 async function updateHandler(request, response) {
   const username = request.query.username;

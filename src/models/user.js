@@ -14,12 +14,12 @@ async function create(data) {
       text: `
     INSERT INTO
         users (username, email, password) 
-     VALUES 
+    VALUES 
         ($1, $2, $3)
-        RETURNING *;`,
+    RETURNING 
+        id, username, email, created_at, updated_at;`,
       values: [data.username, data.email, data.password],
     });
-
     return result.rows[0];
   }
 }
@@ -59,7 +59,7 @@ async function update(username, userData) {
     WHERE 
         id = $1
     RETURNING 
-        *;`,
+        id, username, email, created_at, updated_at;`,
       values: [
         userData.id,
         userData.username,
@@ -67,7 +67,6 @@ async function update(username, userData) {
         await userData.password,
       ],
     });
-
     return result;
   }
 }
@@ -89,7 +88,6 @@ async function findOneByUsername(username) {
       action: "Please, check the username and try again.",
     });
   }
-
   return result.rows[0];
 }
 

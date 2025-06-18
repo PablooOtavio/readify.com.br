@@ -1,4 +1,7 @@
-import { UserValidation, PasswordValidation } from "src/tests/helpers/users";
+import {
+  UserValidation,
+  PasswordValidation,
+} from "src/tests/helpers/users.helper";
 import orchestrator from "src/tests/orchestrator";
 
 beforeAll(async () => {
